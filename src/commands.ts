@@ -24,16 +24,24 @@ function helpCommand(ctx: Context) {
  * @param {Object} ctx
  */
 function clearCommand(ctx: Context) {
-  if (!ctx.session.admin) return;
-  db.closeAll();
-  cache.ticketIDs.length = 0;
-  cache.ticketStatus.length = 0;
-  cache.ticketSent.length = 0;
-  middleware.reply(
-    ctx,
-    'All tickets closed.',
-    { parse_mode: cache.config.parse_mode }, /* .notifications(false) */
-  );
+  // if (!ctx.session.admin) return;
+  if (!ctx.session.admin || ctx.from.id != cache.config.owner_id) {
+    middleware.reply(
+      ctx,
+      'Unauthorized action',
+      { parse_mode: cache.config.parse_mode }, /* .notifications(false) */
+    );
+  } else {
+    db.closeAll();
+    cache.ticketIDs.length = 0;
+    cache.ticketStatus.length = 0;
+    cache.ticketSent.length = 0;
+    middleware.reply(
+      ctx,
+      'All tickets closed.',
+      { parse_mode: cache.config.parse_mode }, /* .notifications(false) */
+    );
+  }
 }
 
 /**
@@ -111,7 +119,7 @@ function closeCommand(ctx: Context) {
       if (
         cache.config.categories[index].subgroups == undefined ||
         cache.config.categories[index].subgroups.length == 0
-        ) {
+      ) {
         if (cache.config.categories[index].group_id == ctx.chat.id) {
           groups.push(cache.config.categories[index].name);
         }
@@ -172,7 +180,7 @@ function closeCommand(ctx: Context) {
       userid,
       `${cache.config.language.ticket} ` +
       `#T${ticketId.toString().padStart(6, '0')} ` +
-      `${cache.config.language.closed}\n\n
+      `${cache.config.language.closed}\n
       ${cache.config.language.ticketClosed}`,
       { parse_mode: cache.config.parse_mode }, /* .notifications(false) */
     );
@@ -226,38 +234,46 @@ function banCommand(ctx: Context) {
  * @param {Object} ctx
  */
 function reopenCommand(ctx: Context) {
-  if (!ctx.session.admin) return;
-  // Get open tickets for any maintained label
-  const replyText = ctx.message.reply_to_message.text;
+  // if (!ctx.session.admin) return;
+  if (!ctx.session.admin || ctx.from.id != cache.config.owner_id) {
+    middleware.reply(
+      ctx,
+      'Unauthorized action',
+      { parse_mode: cache.config.parse_mode }, /* .notifications(false) */
+    );
+  } else {
+    // Get open tickets for any maintained label
+    const replyText = ctx.message.reply_to_message.text;
 
-  let ticketId: any = -1;
-  ticketId = replyText.match(
-    new RegExp('#T' + '(.*)' + ' ' + cache.config.language.from),
-  );
-  if (ticketId) {
-    ticketId = ticketId[1];
+    let ticketId: any = -1;
+    ticketId = replyText.match(
+      new RegExp('#T' + '(.*)' + ' ' + cache.config.language.from),
+    );
+    if (ticketId) {
+      ticketId = ticketId[1];
+    }
+    if (ticketId == undefined) {
+      return;
+    }
+
+    // get userid from ticketid
+    db.getId(
+      ticketId,
+      function (ticket: { userid: any; id: { toString: () => string } }) {
+        db.reopen(ticket.userid, '');
+
+        middleware.msg(
+          ctx.chat.id,
+          cache.config.language.usr_with_ticket +
+          ' #T' +
+          ticket.id.toString().padStart(6, '0') +
+          ' ' +
+          cache.config.language.ticketReopened,
+          { parse_mode: cache.config.parse_mode }, /* .notifications(false) */
+        );
+      },
+    );
   }
-  if (ticketId == undefined) {
-    return;
-  }
-
-  // get userid from ticketid
-  db.getId(
-    ticketId,
-    function (ticket: { userid: any; id: { toString: () => string } }) {
-      db.reopen(ticket.userid, '');
-
-      middleware.msg(
-        ctx.chat.id,
-        cache.config.language.usr_with_ticket +
-        ' #T' +
-        ticket.id.toString().padStart(6, '0') +
-        ' ' +
-        cache.config.language.ticketReopened,
-        { parse_mode: cache.config.parse_mode }, /* .notifications(false) */
-      );
-    },
-  );
 }
 
 /**
