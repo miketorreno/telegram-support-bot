@@ -1,5 +1,8 @@
 import { Context, Config } from './interfaces';
 import cache from './cache';
+import { InputFile } from "grammy";
+import { Menu } from "@grammyjs/menu";
+import * as db from './db';
 
 import * as middleware from './middleware';
 import * as commands from './commands';
@@ -43,7 +46,7 @@ function createBot() {
  */
 function main(bot: TelegramAddon = defaultBot, logs = true) {
   cache.bot = defaultBot;
-  // bot.sendMessage(cache.config.staffchat_id, 'Bot started');
+  bot.sendMessage(cache.config.staffchat_id, 'Bot started');
   // Check addon
   if (cache.config.signal_enabled) {
     signal.init(function (ctx: Context, msg: any[]) {
@@ -77,6 +80,105 @@ function main(bot: TelegramAddon = defaultBot, logs = true) {
 
   // Init category keys
   const keys = inline.initInline(bot);
+
+  // Menu
+  const mainMenu = new Menu("main-menu")
+    .text("Issues", (ctx) => ctx.reply('Please write us your issue'))
+    .submenu("Games", "games-menu").row()
+    .text("About Us", (ctx) => ctx.reply(`Company \n\n \t Sit ea proident laborum nisi nostrud exercitation reprehenderit eu. Anim nostrud duis est laborum eiusmod tempor eiusmod dolor excepteur ad laboris nostrud ipsum. Irure pariatur dolor est nulla sint est. Sit ea proident laborum nisi nostrud exercitation reprehenderit eu. Anim nostrud duis est laborum eiusmod tempor eiusmod dolor excepteur ad laboris nostrud ipsum. Irure pariatur dolor est nulla sint est.  \n \t Sit ea proident laborum nisi nostrud exercitation reprehenderit eu. Anim nostrud duis est laborum eiusmod tempor eiusmod dolor excepteur ad laboris nostrud ipsum. Irure pariatur dolor est nulla sint est.`))
+    .text("Contacts", (ctx) => ctx.reply(`Contacts \n
+    Support
+    +2519123456789
+    +2519123456789
+    +2519123456789
+  
+    Finance
+    +2519123456789`)).row();
+  
+  // const issues = new Menu("issues-menu")
+  //   .text("Keno", (ctx) => ctx.reply('Please write us your issue'))
+  //   .back("Back")
+  //   .submenu("Main Menu", "main-menu");
+
+
+  // const issues = new Menu("issues-menu")
+  //   .text("Testing issue", (ctx) => {
+  //     // console.log(ctx.update.callback_query.message.from)
+  //     // console.log(ctx.update.callback_query.message.from.id)
+  //     db.getOpen(
+  //         ctx.update.callback_query.message.from.id,
+  //         null,
+  //         function(ticket: any) {
+  //           if (ticket == undefined) {
+  //             db.add(ctx.update.callback_query.message.from.id, 'open', null);
+  //           }
+  //         },
+  //     );
+  //     // text.handleText(bot, ctx, keys)
+  //   }).row()
+  //   .text("Printer issue", (ctx) => ctx.reply("Please send us TeamViewer access")).row()
+  //   // .text("Printer issue", (ctx) => text.handleText(bot, ctx, keys)).row()
+  //   .submenu("Password issue", "").row()
+  //   .submenu("Display issue", "").row()
+  //   .submenu("Timer issue", "").row()
+  //   .back("Back")
+  //   .submenu("Main Menu", "main-menu");
+
+  // const games = new Menu("games-menu")
+  //   .submenu("Kiron", "kiron-menu").row()
+  //   .submenu("Alpha", "alpha-menu").row()
+  //   .submenu("Mohio", "mohio-menu").row()
+  //   .submenu("Emerald", "emerald-menu").row()
+  //   .submenu("Goldenrace", "goldenrace-menu").row()
+  //   .back("Back")
+  //   .submenu("Main Menu", "main-menu");
+
+  const kiron = new Menu("kiron-menu")
+  //   // .text("Keno", async (ctx) => await ctx.replyWithPhoto("https://placehold.co/600x400.png"))
+  //   // .text("Spin", async (ctx) => await ctx.replyWithPhoto("https://grammy.dev/images/grammY.png"))
+  //   .text("Keno", async (ctx) => await ctx.replyWithPhoto("https://kironinteractive.com/wp-content/uploads/2022/01/keno-Carousel-3.jpg"))
+  //   .text("Spin", async (ctx) => await ctx.replyWithPhoto("https://kironinteractive.com/wp-content/uploads/2022/01/spin-and-win-1.jpg")).row()
+  //   .text("Horse Racing", async (ctx) => await ctx.replyWithPhoto(new InputFile("https://kironinteractive.com/wp-content/uploads/2022/01/Lotto-Horses-6.jpg"))).row()
+  //   .text("Dog Racing", async (ctx) => await ctx.replyWithPhoto(new InputFile("https://kironinteractive.com/wp-content/uploads/2022/01/Dog-Racing-1.jpg")))
+  //   .text("Car Racing", async (ctx) => await ctx.replyWithPhoto(new InputFile("https://kironinteractive.com/wp-content/uploads/2022/01/Game-Carousel-5.jpg")))
+    .back("Back")
+    .submenu("Main Menu", "main-menu");
+
+  const games = new Menu("games-menu")
+    .text("Keno", async (ctx) => await ctx.replyWithPhoto("https://kironinteractive.com/wp-content/uploads/2022/01/keno-Carousel-3.jpg"))
+    .text("Spin", async (ctx) => await ctx.replyWithPhoto("https://kironinteractive.com/wp-content/uploads/2022/01/spin-and-win-1.jpg")).row()
+    .text("Horse Racing", async (ctx) => await ctx.replyWithPhoto("https://kironinteractive.com/wp-content/uploads/2022/01/Lotto-Horses-6.jpg"))
+    .text("Dog Racing", async (ctx) => await ctx.replyWithPhoto("https://kironinteractive.com/wp-content/uploads/2022/01/Dog-Racing-1.jpg"))
+    .text("Car Racing", async (ctx) => await ctx.replyWithPhoto("https://kironinteractive.com/wp-content/uploads/2022/01/Game-Carousel-5.jpg")).row()
+    .back("Back")
+    .submenu("Main Menu", "main-menu");
+  
+  // const testing = new Menu("testing-menu")
+  //   .back("Back")
+  //   .submenu("Main Menu", "main-menu");
+    
+  // const alpha = new Menu("alpha-menu")
+  //   .back("Back")
+  //   .submenu("Main Menu", "main-menu");
+  
+  // const mohio = new Menu("mohio-menu")
+  //   .back("Back")
+  //   .submenu("Main Menu", "main-menu");
+  
+  // const emerald = new Menu("emerald-menu")
+  //   .back("Back")
+  //   .submenu("Main Menu", "main-menu");
+  
+  // const goldenrace = new Menu("goldenrace-menu")
+  //   .back("Back")
+  //   .submenu("Main Menu", "main-menu");
+
+
+  // mainMenu.register([issues, games]);
+  // games.register([kiron, alpha, mohio, emerald, goldenrace, testing]);
+  mainMenu.register([games]);
+  bot.use(mainMenu);
+
 
   // Set bots username
   // bot..getMe().then((botInfo) => bot.options.username = botInfo.username);
@@ -129,9 +231,11 @@ function main(bot: TelegramAddon = defaultBot, logs = true) {
   });
 
   if (cache.config.pass_start == false) {
-    bot.command('start', (ctx: Context) => {
+    bot.command('start', async (ctx: Context) => {
       if (ctx.chat.type == 'private') {
-        middleware.reply(ctx, cache.config.language.startCommandText);
+        await ctx.reply("Hello there 👋 \nWelcome to our support bot! How can we help you?", { reply_markup: mainMenu });
+
+        // middleware.reply(ctx, cache.config.language.startCommandText);
         if (cache.config.categories && cache.config.categories.length > 0) {
           setTimeout(
             () =>

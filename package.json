@@ -24,6 +24,7 @@
         "node": ">=6.2.0"
     },
     "dependencies": {
+        "@grammyjs/menu": "^1.2.1",
         "@grammyjs/transformer-throttler": "^1.2.1",
         "better-sqlite3": "^8.0.1",
         "chalk": "^5.2.0",
